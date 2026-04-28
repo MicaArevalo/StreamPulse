@@ -58,7 +58,7 @@ Pipeline de analytics fintech en tiempo real. Procesa miles de eventos de transa
 
 ```bash
 # Clonar
-git clone https://github.com/TU_USUARIO/StreamPulse.git
+git clone https://github.com/MicaArevalo/StreamPulse.git
 cd StreamPulse
 
 # Levantar todo con un comando
