@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  producer:
+    build:
+      context: .
+      dockerfile: src/StreamPulse.Producer/Dockerfile
+    container_name: streampulse-producer
+    depends_on:
+      kafka:
+        condition: service_started
+    environment:
+      Kafka__BootstrapServers: kafka:9092
+      Simulator__EventsPerSecond: 20
+    restart: unless-stopped
+
+  processor:
+    build:
+      context: .
+      dockerfile: src/StreamPulse.Processor/Dockerfile
+    container_name: streampulse-processor
+    depends_on:
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      Kafka__BootstrapServers: kafka:9092
+      Redis__ConnectionString: redis:6379
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: src/StreamPulse.Api/Dockerfile
+    container_name: streampulse-api
+    depends_on:
+      redis:
+        condition: service_started
+    ports:
+      - "5000:5000"
+    environment:
+      Redis__ConnectionString: redis:6379
+      ASPNETCORE_URLS: http://+:5000
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: streampulse-dashboard
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+    restart: unless-stopped

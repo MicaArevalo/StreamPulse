@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(dotnet new worker -n StreamPulse.Producer -o src/StreamPulse.Producer)",
+      "PowerShell(dotnet new worker -n StreamPulse.Processor -o src/StreamPulse.Processor)",
+      "PowerShell(dotnet new webapi -n StreamPulse.Api -o src/StreamPulse.Api --no-openapi)",
+      "PowerShell(dotnet new xunit -n StreamPulse.Tests -o tests/StreamPulse.Tests)",
+      "PowerShell(dotnet sln add src/StreamPulse.Producer/StreamPulse.Producer.csproj)",
+      "PowerShell(dotnet sln add src/StreamPulse.Processor/StreamPulse.Processor.csproj)",
+      "PowerShell(dotnet sln add src/StreamPulse.Api/StreamPulse.Api.csproj)",
+      "PowerShell(dotnet sln add tests/StreamPulse.Tests/StreamPulse.Tests.csproj)",
+      "PowerShell(dotnet build)",
+      "PowerShell(curl -s http://localhost:5000/api/metrics/latest 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/metrics/latest\")"
+    ]
+  }
+}
