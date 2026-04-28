@@ -11,7 +11,8 @@
       "PowerShell(dotnet sln add tests/StreamPulse.Tests/StreamPulse.Tests.csproj)",
       "PowerShell(dotnet build)",
       "PowerShell(curl -s http://localhost:5000/api/metrics/latest 2>&1)",
-      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/metrics/latest\")"
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/metrics/latest\")",
+      "Bash(dotnet test *)"
     ]
   }
 }
