@@ -1,6 +1,6 @@
 # StreamPulse
 
-![CI](https://github.com/TU_USUARIO/StreamPulse/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/MicaArevalo/StreamPulse/actions/workflows/ci.yml/badge.svg)
 ![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
 ![Kafka](https://img.shields.io/badge/Apache_Kafka-231F20?logo=apachekafka&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)
