@@ -73,14 +73,14 @@ public sealed class TransactionAggregator
         }
     }
 
-    public (double Mean, double StdDev) GetAmountStats()
+    public (double Mean, double StdDev, int Count) GetAmountStats()
     {
         lock (_lock)
         {
-            if (_amounts.Count == 0) return (0, 0);
+            if (_amounts.Count == 0) return (0, 0, 0);
             var mean = _amounts.Average(a => (double)a);
             var variance = _amounts.Average(a => Math.Pow((double)a - mean, 2));
-            return (mean, Math.Sqrt(variance));
+            return (mean, Math.Sqrt(variance), _amounts.Count);
         }
     }
 

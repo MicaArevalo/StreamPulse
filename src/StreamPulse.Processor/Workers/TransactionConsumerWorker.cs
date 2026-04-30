@@ -1,8 +1,10 @@
 using Confluent.Kafka;
 using StreamPulse.Processor.Aggregators;
 using StreamPulse.Processor.Anomaly;
+using StreamPulse.Processor.Models;
 using StreamPulse.Processor.Services;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Channels;
 
 namespace StreamPulse.Processor.Workers;
@@ -15,6 +17,11 @@ public sealed class TransactionConsumerWorker : BackgroundService
     private readonly RedisMetricsService _redis;
     private readonly ILogger<TransactionConsumerWorker> _logger;
     private readonly Channel<string> _buffer;
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public TransactionConsumerWorker(
         IConfiguration config,
@@ -84,24 +91,13 @@ public sealed class TransactionConsumerWorker : BackgroundService
         {
             try
             {
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
+                var tx = JsonSerializer.Deserialize<TransactionMessage>(json, _jsonOptions);
+                if (tx is null) continue;
 
-                var accountId    = root.GetProperty("AccountId").GetString() ?? "";
-                var amount       = root.GetProperty("Amount").GetDecimal();
-                var statusElement = root.GetProperty("Status");
-                var status = statusElement.ValueKind == JsonValueKind.Number
-                    ? statusElement.GetInt32() switch { 0 => "COMPLETED", 1 => "FAILED", _ => "PENDING" }
-                    : statusElement.GetString() ?? "";
-                var processingMs = root.GetProperty("ProcessingTimeMs").GetInt32();
-                var failureReason = root.TryGetProperty("FailureReason", out var frEl) && frEl.ValueKind != JsonValueKind.Null
-                    ? frEl.GetString()
-                    : null;
+                var (mean, stdDev, sampleCount) = _aggregator.GetAmountStats();
+                var isAnomaly = _anomalyDetector.IsAnomaly(tx.AccountId, tx.Amount, mean, stdDev, sampleCount);
 
-                var (mean, stdDev) = _aggregator.GetAmountStats();
-                var isAnomaly = _anomalyDetector.IsAnomaly(accountId, amount, mean, stdDev);
-
-                _aggregator.Record(status, amount, processingMs, isAnomaly, failureReason);
+                _aggregator.Record(tx.Status, tx.Amount, tx.ProcessingTimeMs, isAnomaly, tx.FailureReason);
             }
             catch (Exception ex)
             {

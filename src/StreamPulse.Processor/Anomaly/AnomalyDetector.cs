@@ -5,13 +5,15 @@ public sealed class AnomalyDetector
     private const double StdDevThreshold = 3.0;
     private const int VelocityWindowSeconds = 60;
     private const int VelocityThreshold = 30;
+    private const int MinSamplesForDetection = 30;
 
     private readonly Dictionary<string, Queue<DateTimeOffset>> _accountActivity = new();
     private readonly object _lock = new();
 
-    public bool IsAnomaly(string accountId, decimal amount, double mean, double stdDev)
+    public bool IsAnomaly(string accountId, decimal amount, double mean, double stdDev, int sampleCount)
     {
-        if (stdDev > 0 && Math.Abs((double)amount - mean) > StdDevThreshold * stdDev)
+        if (sampleCount >= MinSamplesForDetection && stdDev > 0
+            && Math.Abs((double)amount - mean) > StdDevThreshold * stdDev)
             return true;
 
         return IsHighVelocity(accountId);

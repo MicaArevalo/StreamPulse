@@ -11,8 +11,10 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<MetricsBroadcastService>();
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:3000"];
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:3000")
+    p.WithOrigins(allowedOrigins)
      .AllowAnyMethod()
      .AllowAnyHeader()
      .AllowCredentials()));
