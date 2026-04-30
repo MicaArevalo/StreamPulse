@@ -9,6 +9,7 @@ public sealed class MetricsBroadcastService : BackgroundService
     private readonly IHubContext<MetricsHub> _hub;
     private readonly IDatabase _redis;
     private readonly ILogger<MetricsBroadcastService> _logger;
+    private string? _lastBroadcastValue;
 
     public MetricsBroadcastService(
         IHubContext<MetricsHub> hub,
@@ -28,8 +29,12 @@ public sealed class MetricsBroadcastService : BackgroundService
             try
             {
                 var value = await _redis.StringGetAsync("streampulse:metrics:latest");
-                if (!value.IsNullOrEmpty)
-                    await _hub.Clients.Group("metrics").SendAsync("MetricsUpdate", value.ToString(), stoppingToken);
+                var current = value.IsNullOrEmpty ? null : value.ToString();
+                if (current != null && current != _lastBroadcastValue)
+                {
+                    _lastBroadcastValue = current;
+                    await _hub.Clients.Group("metrics").SendAsync("MetricsUpdate", current, stoppingToken);
+                }
             }
             catch (Exception ex)
             {

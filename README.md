@@ -36,7 +36,7 @@ Pipeline de analytics fintech en tiempo real. Procesa miles de eventos de transa
 - **Agregación en ventanas** de 1 minuto con métricas P90/P95/P99
 - **Detección de anomalías** por desvío estándar (3σ) y velocidad por cuenta (>30 tx/60s)
 - **Dead Letter Queue topic** definido en la arquitectura, listo para conectar un consumer de reintentos
-- **Dashboard en vivo** via SignalR — se actualiza cada 2 segundos
+- **Dashboard en vivo** via SignalR — push solo cuando hay dato nuevo (polling cada 2s, ventana de métricas de 60s)
 - **Testcontainers** — tests de integración con Kafka real, sin mocks
 
 ## Stack
